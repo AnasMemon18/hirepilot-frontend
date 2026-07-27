@@ -1,0 +1,193 @@
+import React from 'react';
+import { User, Mail, Briefcase, GraduationCap, FileText, TrendingUp, Crown, Trophy, Award } from 'lucide-react';
+const CandidateCard = ({ candidate, onClick, rank }) => {
+  // Get first 3 skills to display
+  const topSkills = candidate.skills?.slice(0, 3) || [];
+  const hasMoreSkills = (candidate.skills?.length || 0) > 3;
+
+  // Get match score
+  const matchScore = candidate.matchResult?.overallScore || null;
+
+  // Get score color
+  const getScoreColor = (score) => {
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const getScoreBg = (score) => {
+    if (score >= 80) return 'bg-green-100';
+    if (score >= 60) return 'bg-yellow-100';
+    return 'bg-red-100';
+  };
+
+  
+  const getRankBadge = (rank) => {
+    if (!rank) return null;
+    
+    const rankStyles = {
+      1: {
+        bg: 'bg-gradient-to-r from-yellow-400 to-yellow-500',
+        text: 'text-white',
+        icon: Crown,
+        label: '🏆 #1'
+      },
+      2: {
+        bg: 'bg-gradient-to-r from-gray-300 to-gray-400',
+        text: 'text-white',
+        icon: Trophy,
+        label: '🥈 #2'
+      },
+      3: {
+        bg: 'bg-gradient-to-r from-amber-600 to-amber-700',
+        text: 'text-white',
+        icon: Award,
+        label: '🥉 #3'
+      }
+    };
+
+    // For ranks > 3, use a simpler style
+    if (rank > 3) {
+      return {
+        bg: 'bg-gray-100',
+        text: 'text-gray-600',
+        icon: null,
+        label: `#${rank}`
+      };
+    }
+
+    return rankStyles[rank] || {
+      bg: 'bg-gray-100',
+      text: 'text-gray-600',
+      icon: null,
+      label: `#${rank}`
+    };
+  };
+
+  const rankStyle = rank ? getRankBadge(rank) : null;
+
+  // Format date
+  const uploadedDate = candidate.createdAt 
+    ? new Date(candidate.createdAt).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      })
+    : '';
+
+  return (
+    <div
+      onClick={onClick}
+      className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md hover:border-blue-300 transition-all cursor-pointer relative group"
+    >
+      {/* ✅ Rank Badge - Top Left */}
+      {rankStyle && (
+        <div className={`absolute -top-2 -left-2 px-2.5 py-1 rounded-full text-xs font-bold ${rankStyle.bg} ${rankStyle.text} shadow-md z-10`}>
+          {rankStyle.icon ? (
+            <div className="flex items-center gap-1">
+              <rankStyle.icon className="w-3 h-3" />
+              <span>{rankStyle.label}</span>
+            </div>
+          ) : (
+            rankStyle.label
+          )}
+        </div>
+      )}
+
+      {/* Header - Name & Status */}
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+            <User className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="font-semibold text-gray-900 truncate text-sm sm:text-base">
+              {candidate.candidateName || 'Unnamed Candidate'}
+            </h3>
+            <p className="text-xs text-gray-500">{uploadedDate}</p>
+          </div>
+        </div>
+
+        {/* Match Score Badge */}
+        {matchScore !== null ? (
+          <div className={`px-2 py-1 sm:px-3 sm:py-1 rounded-full ${getScoreBg(matchScore)} flex items-center gap-1 flex-shrink-0`}>
+            <TrendingUp className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${getScoreColor(matchScore)}`} />
+            <span className={`text-xs sm:text-sm font-bold ${getScoreColor(matchScore)}`}>
+              {matchScore}%
+            </span>
+          </div>
+        ) : (
+          <span className={`text-xs px-2 py-1 rounded-full ${
+            candidate.status === 'parsed' 
+              ? 'bg-green-100 text-green-700' 
+              : candidate.status === 'parsed_with_errors'
+              ? 'bg-yellow-100 text-yellow-700'
+              : 'bg-gray-100 text-gray-700'
+          }`}>
+            {candidate.status || 'uploaded'}
+          </span>
+        )}
+      </div>
+
+      {/* Contact Info */}
+      <div className="space-y-1 mb-3">
+        {candidate.email && (
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+            <Mail className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
+            <span className="truncate">{candidate.email}</span>
+          </div>
+        )}
+        {candidate.phone && (
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+            <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
+            <span className="truncate">{candidate.phone}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Skills */}
+      {topSkills.length > 0 && (
+        <div className="mb-3">
+          <div className="flex flex-wrap gap-1">
+            {topSkills.map((skill, index) => (
+              <span
+                key={index}
+                className="px-1.5 py-0.5 sm:px-2 sm:py-0.5 bg-blue-50 text-blue-700 text-[10px] sm:text-xs rounded-full"
+              >
+                {skill}
+              </span>
+            ))}
+            {hasMoreSkills && (
+              <span className="px-1.5 py-0.5 sm:px-2 sm:py-0.5 bg-gray-100 text-gray-600 text-[10px] sm:text-xs rounded-full">
+                +{candidate.skills.length - 3} more
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Footer - Experience & Education */}
+      <div className="flex items-center gap-3 sm:gap-4 pt-3 border-t border-gray-100 text-[10px] sm:text-xs text-gray-500">
+        <div className="flex items-center gap-1">
+          <Briefcase className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          <span>
+            {candidate.workExperience?.length || 0} exp
+          </span>
+        </div>
+        <div className="flex items-center gap-1">
+          <GraduationCap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          <span>
+            {candidate.education?.length || 0} edu
+          </span>
+        </div>
+        <div className="flex items-center gap-1 ml-auto">
+          <span className="text-gray-400">
+            {candidate.totalExperience || 'N/A'}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CandidateCard;
