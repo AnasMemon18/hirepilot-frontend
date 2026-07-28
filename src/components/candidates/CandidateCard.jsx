@@ -1,7 +1,7 @@
 import React from 'react';
 import { User, Mail, Briefcase, GraduationCap, FileText, TrendingUp, Crown, Trophy, Award } from 'lucide-react';
 
-const CandidateCard = ({ candidate, onClick, rank }) => {
+const CandidateCard = React.memo(({ candidate, onClick, rank }) => {
   const topSkills = candidate.skills?.slice(0, 3) || [];
   const hasMoreSkills = (candidate.skills?.length || 0) > 3;
 
@@ -178,6 +178,6 @@ const CandidateCard = ({ candidate, onClick, rank }) => {
       )}
     </div>
   );
-};
+});
 
 export default CandidateCard;

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { User, LogOut, Settings, ChevronDown, UserCircle } from 'lucide-react';
 
-const ProfileDropdown = () => {
+const ProfileDropdown = React.memo(() => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -96,6 +96,6 @@ const ProfileDropdown = () => {
       )}
     </div>
   );
-};
+});
 
 export default ProfileDropdown;

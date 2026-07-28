@@ -10,7 +10,7 @@ import {
   BarChart3 
 } from 'lucide-react';
 
-const Sidebar = ({ isOpen }) => {
+const Sidebar = React.memo(({ isOpen }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -73,6 +73,6 @@ const Sidebar = ({ isOpen }) => {
       </div>
     </aside>
   );
-};
+});
 
 export default Sidebar;

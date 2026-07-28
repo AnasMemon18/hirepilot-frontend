@@ -1,11 +1,11 @@
-import React from "react";
+import React, { memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu, X, Briefcase } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import ProfileDropdown from './ProfileDropdown';
 
 
-const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
+const Navbar = React.memo(({ sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
@@ -63,6 +63,6 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
       )}
     </nav>
   );
-};
+});
 
 export default Navbar;

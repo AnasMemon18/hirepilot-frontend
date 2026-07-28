@@ -18,7 +18,7 @@ import {
   Users,
 } from "lucide-react";
 
-const JobList = () => {
+const JobList = React.memo(() => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isHR, isAdmin } = useAuth();
@@ -226,6 +226,6 @@ const JobList = () => {
       </div>
     </div>
   );
-};
+});
 
 export default JobList;

@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { matchCandidate } from '../../api/resumeApi';
 
-const CandidateDetails = ({ candidate }) => {
+const CandidateDetails = React.memo(({ candidate }) => {
   const [isMatching, setIsMatching] = useState(false);
   const [matchResult, setMatchResult] = useState(candidate.matchResult || null);
 
@@ -451,6 +451,6 @@ const CandidateDetails = ({ candidate }) => {
       )}
     </div>
   );
-};
+});
 
 export default CandidateDetails;
