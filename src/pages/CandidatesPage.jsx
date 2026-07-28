@@ -5,6 +5,7 @@ import { getCandidatesByJob } from '../api/resumeApi';
 import { getJobById } from '../api/jobApi';
 import { matchAllCandidates } from '../api/resumeApi';
 import { toast } from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 import { 
   Loader2, ArrowLeft, User, Briefcase, 
   GraduationCap, FileText, Zap, TrendingUp, Users,
@@ -17,6 +18,8 @@ const CandidatesPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isMatchingAll, setIsMatchingAll] = useState(false);
+  const { isHR, isAdmin } = useAuth();
+const canMatch = isHR || isAdmin;
 
   // Fetch job details
   const { data: jobData, isLoading: jobLoading } = useQuery(
@@ -111,23 +114,26 @@ const CandidatesPage = () => {
             </p>
           </div>
         </div>
-        <button
-          onClick={handleMatchAll}
-          disabled={isMatchingAll || candidates.length === 0}
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-        >
-          {isMatchingAll ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Matching...
-            </>
-          ) : (
-            <>
-              <Zap className="w-4 h-4" />
-              {matchedCount > 0 ? 'Re-Match All' : `Match All (${candidates.length})`}
-            </>
-          )}
-        </button>
+   {/* ✅ Match All button - Hide from viewer */}
+{canMatch && (
+  <button
+    onClick={handleMatchAll}
+    disabled={isMatchingAll || candidates.length === 0}
+    className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+  >
+    {isMatchingAll ? (
+      <>
+        <Loader2 className="w-4 h-4 animate-spin" />
+        Matching...
+      </>
+    ) : (
+      <>
+        <Zap className="w-4 h-4" />
+        {matchedCount > 0 ? 'Re-Match All' : `Match All (${candidates.length})`}
+      </>
+    )}
+  </button>
+)}
       </div>
 
       {/* Stats - Responsive Grid */}

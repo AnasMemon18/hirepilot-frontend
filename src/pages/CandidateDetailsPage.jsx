@@ -1,15 +1,21 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from 'react-query';
-import { getCandidateById } from '../api/resumeApi';
-import { Loader2, ArrowLeft, Download, User, Mail, Phone, Briefcase, GraduationCap, Award, Code, Languages, Calendar, Building, FileText } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { getCandidateById, deleteCandidate } from '../api/resumeApi';
+import { toast } from 'react-hot-toast';
+import { Loader2, ArrowLeft, Download, User, Mail, Phone, Briefcase, GraduationCap, Award, Code, Languages, Calendar, Building, FileText, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import CandidateDetails from '../components/candidates/CandidateDetails';
 
 const CandidateDetailsPage = () => {
   const { candidateId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { isHR, isAdmin } = useAuth();
+  const canMatch = isHR || isAdmin;
+  const canDelete = isAdmin;
 
-  const { data, isLoading, error } = useQuery(
+  const { data, isLoading, error, refetch } = useQuery(
     ['candidate', candidateId],
     () => getCandidateById(candidateId),
     { enabled: !!candidateId }
@@ -17,18 +23,35 @@ const CandidateDetailsPage = () => {
 
   const candidate = data?.candidate;
 
+  // ✅ Delete Candidate Mutation (Admin only)
+  const deleteMutation = useMutation(deleteCandidate, {
+    onSuccess: () => {
+      toast.success('✅ Candidate deleted successfully!');
+      queryClient.invalidateQueries(['candidates']);
+      navigate(-1);
+    },
+    onError: (error) => {
+      toast.error(`❌ ${error.response?.data?.error || 'Failed to delete candidate'}`);
+    },
+  });
+
+  const handleDelete = () => {
+    if (window.confirm(`Are you sure you want to delete this candidate?`)) {
+      deleteMutation.mutate(candidateId);
+    }
+  };
+
   // View Resume - Open PDF in new tab
-const handleViewResume = () => {
-  if (candidate?.resumePath) {
-    // Extract just the filename from the full path
-    const fullPath = candidate.resumePath;
-    const fileName = fullPath.split(/[\\/]/).pop(); // Works on Windows and Unix
-    const resumeUrl = `http://localhost:5000/uploads/${fileName}`;
-    window.open(resumeUrl, '_blank');
-  } else {
-    alert('No resume file found');
-  }
-};
+  const handleViewResume = () => {
+    if (candidate?.resumePath) {
+      const fullPath = candidate.resumePath;
+      const fileName = fullPath.split(/[\\/]/).pop();
+      const resumeUrl = `http://localhost:5000/uploads/${fileName}`;
+      window.open(resumeUrl, '_blank');
+    } else {
+      alert('No resume file found');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -60,7 +83,7 @@ const handleViewResume = () => {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="min-w-0"> {/* ✅ Prevents overflow */}
+          <div className="min-w-0">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">
               {candidate.candidateName || 'Unnamed Candidate'}
             </h1>
@@ -81,6 +104,8 @@ const handleViewResume = () => {
           }`}>
             {candidate.status || 'uploaded'}
           </span>
+          
+          {/* ✅ View Resume Button */}
           <button
             onClick={handleViewResume}
             className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-600 text-white text-sm sm:text-base rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
@@ -89,6 +114,24 @@ const handleViewResume = () => {
             <span className="hidden xs:inline">View Resume</span>
             <span className="xs:hidden">Resume</span>
           </button>
+
+          {/* ✅ Delete Button - Admin only */}
+          {canDelete && (
+            <button
+              onClick={handleDelete}
+              disabled={deleteMutation.isLoading}
+              className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-red-600 text-white text-sm sm:text-base rounded-lg hover:bg-red-700 transition-colors whitespace-nowrap"
+            >
+              {deleteMutation.isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4" />
+                  <span className="hidden xs:inline">Delete</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
 

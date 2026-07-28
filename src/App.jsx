@@ -18,6 +18,8 @@ import AllCandidatesPage from './pages/AllCandidatesPage';
 import TopPerformersPage from './pages/TopPerformersPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 const queryClient = new QueryClient();
 
@@ -77,6 +79,8 @@ const AppContent = () => {
       {/* ✅ Public Routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
       {/* ✅ Protected Routes (All Authenticated Users) */}
       <Route element={<ProtectedRoute />}>
@@ -101,6 +105,15 @@ const AppContent = () => {
           element={
             <AppLayout>
               <UploadPage />
+            </AppLayout>
+          }
+        />
+        {/* ✅ Moved create-job here so page handles its own role checks */}
+        <Route
+          path="/create-job"
+          element={
+            <AppLayout>
+              <CreateJobPage />
             </AppLayout>
           }
         />
@@ -146,16 +159,8 @@ const AppContent = () => {
         />
       </Route>
 
-      {/* ✅ Admin & HR Only Routes */}
+      {/* ✅ Admin & HR Only Routes (Sensitive Actions) */}
       <Route element={<ProtectedRoute allowedRoles={['admin', 'hr']} />}>
-        <Route
-          path="/create-job"
-          element={
-            <AppLayout>
-              <CreateJobPage />
-            </AppLayout>
-          }
-        />
         <Route
           path="/edit-job/:jobId"
           element={

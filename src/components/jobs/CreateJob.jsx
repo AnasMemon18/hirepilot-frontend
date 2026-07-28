@@ -30,6 +30,7 @@ const CreateJob = () => {
       reset();
       queryClient.invalidateQueries('jobs');
       
+      // ✅ Show success toast with option to view jobs
       toast.success(
         (t) => (
           <div className="flex flex-col sm:flex-row items-center gap-3">
@@ -95,7 +96,7 @@ const CreateJob = () => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
-        {/* AI Parser Section  */}
+        {/* AI Parser Section - NEW */}
         <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200">
           <div className="flex items-start gap-3">
             <Sparkles className="w-5 h-5 text-purple-600 mt-1" />

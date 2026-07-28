@@ -202,9 +202,9 @@ const RegisterPage = () => {
                 onChange={handleChange}
                 className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-sm appearance-none bg-white"
               >
-                <option value="hr">HR</option>
-                <option value="viewer">Viewer</option>
-                <option value="admin">Admin</option>
+                  <option value="hr">HR (Full Access)</option>
+                <option value="viewer">Viewer (Read Only)</option>
+                {/* <option value="admin">Admin</option> */}
               </select>
             </div>
           </div>

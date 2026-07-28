@@ -99,10 +99,8 @@ const HomePage = () => {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">
-          Welcome back! {totalJobs > 0 ? `You have ${totalJobs} active job${totalJobs > 1 ? 's' : ''} with ${totalCandidates} candidate${totalCandidates > 1 ? 's' : ''}.` : 'Start by creating your first job!'}
-        </p>
+       <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+<p className="text-gray-600 mt-1">Welcome back! Here's what's happening with your jobs.</p>
       </div>
 
       {/* Stats Grid */}

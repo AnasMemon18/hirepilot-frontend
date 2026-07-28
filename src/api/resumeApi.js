@@ -1,12 +1,32 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://hirepilot-backend-f381.onrender.com";
+const API_BASE_URL = "https://hirepilot-backend-f381.onrender.com" || "http://localhost:5000"; 
+
+// ✅ Create axios instance
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// ✅ Add token interceptor
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export const uploadResumes = async (formData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/uploadResumes`, formData, {
+    const response = await api.post("/uploadResumes", formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     });
     return response.data;
@@ -18,7 +38,7 @@ export const uploadResumes = async (formData) => {
 
 export const getCandidatesByJob = async (jobId) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/candidates/${jobId}`);
+    const response = await api.get(`/candidates/${jobId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching candidates:", error);
@@ -28,7 +48,7 @@ export const getCandidatesByJob = async (jobId) => {
 
 export const getCandidateById = async (candidateId) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/candidate/${candidateId}`);
+    const response = await api.get(`/candidate/${candidateId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching candidate:", error);
@@ -38,7 +58,7 @@ export const getCandidateById = async (candidateId) => {
 
 export const deleteCandidate = async (candidateId) => {
   try {
-    const response = await axios.delete(`${API_BASE_URL}/candidate/${candidateId}`);
+    const response = await api.delete(`/candidate/${candidateId}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting candidate:", error);
@@ -46,10 +66,9 @@ export const deleteCandidate = async (candidateId) => {
   }
 };
 
-
 export const matchCandidate = async (candidateId) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/match/${candidateId}`);
+    const response = await api.post(`/match/${candidateId}`);
     return response.data;
   } catch (error) {
     console.error("Error matching candidate:", error);
@@ -57,10 +76,9 @@ export const matchCandidate = async (candidateId) => {
   }
 };
 
-
 export const matchAllCandidates = async (jobId) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/matchAll/${jobId}`);
+    const response = await api.post(`/matchAll/${jobId}`);
     return response.data;
   } catch (error) {
     console.error("Error matching all candidates:", error);

@@ -1,5 +1,10 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { login as apiLogin, register as apiRegister, getMe } from '../api/authApi';
+import React, { createContext, useState, useContext, useEffect } from "react";
+import {
+  login as apiLogin,
+  register as apiRegister,
+  getMe,
+} from "../api/authApi";
+import { toast } from 'react-hot-toast';
 
 // ✅ Create context
 const AuthContext = createContext();
@@ -8,7 +13,7 @@ const AuthContext = createContext();
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 };
@@ -17,7 +22,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token') || null);
+  const [token, setToken] = useState(localStorage.getItem("token") || null);
 
   // ✅ Load user on mount if token exists
   useEffect(() => {
@@ -27,8 +32,8 @@ export const AuthProvider = ({ children }) => {
           const response = await getMe();
           setUser(response.user);
         } catch (error) {
-          console.error('Failed to load user:', error);
-          localStorage.removeItem('token');
+          console.error("Failed to load user:", error);
+          localStorage.removeItem("token");
           setToken(null);
           setUser(null);
         }
@@ -44,16 +49,19 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await apiLogin(email, password);
       const { token, user } = response;
-      
-      localStorage.setItem('token', token);
+
+      localStorage.setItem("token", token);
       setToken(token);
       setUser(user);
-      
+
+      if (user?.firstName) {
+        toast.success(`👋 Welcome back, ${user.firstName}!`);
+      }
       return { success: true, user };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.error || 'Login failed' 
+      return {
+        success: false,
+        error: error.response?.data?.error || "Login failed",
       };
     }
   };
@@ -63,23 +71,27 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await apiRegister(userData);
       const { token, user } = response;
-      
-      localStorage.setItem('token', token);
+
+      localStorage.setItem("token", token);
       setToken(token);
       setUser(user);
-      
+
+      if (user?.firstName) {
+        toast.success(`🎉 Welcome to HirePilot, ${user.firstName}!`);
+      }
+
       return { success: true, user };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.error || 'Registration failed' 
+      return {
+        success: false,
+        error: error.response?.data?.error || "Registration failed",
       };
     }
   };
 
   // ✅ Logout function
   const logout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     setToken(null);
     setUser(null);
   };
@@ -99,14 +111,11 @@ export const AuthProvider = ({ children }) => {
     logout,
     isAuthenticated: !!user,
     hasRole,
-    isAdmin: user?.role === 'admin',
-    isHR: user?.role === 'hr' || user?.role === 'admin',
-    isViewer: user?.role === 'viewer' || user?.role === 'hr' || user?.role === 'admin',
+    isAdmin: user?.role === "admin",
+    isHR: user?.role === "hr" || user?.role === "admin",
+    isViewer:
+      user?.role === "viewer" || user?.role === "hr" || user?.role === "admin",
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL =  "https://hirepilot-backend-f381.onrender.com"|| "http://localhost:5000";
-
+const API_BASE_URL = "https://hirepilot-backend-f381.onrender.com" || "http://localhost:5000";
+ 
 // ✅ Create axios instance with base URL
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -62,6 +62,32 @@ export const getMe = async () => {
     return response.data;
   } catch (error) {
     console.error("GetMe error:", error);
+    throw error;
+  }
+};
+
+// ✅ NEW: Forgot Password - Send reset code
+export const forgotPassword = async (email) => {
+  try {
+    const response = await api.post("/api/auth/forgot-password", { email });
+    return response.data;
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    throw error;
+  }
+};
+
+// ✅ NEW: Reset Password - Verify code and set new password
+export const resetPassword = async (email, code, newPassword) => {
+  try {
+    const response = await api.post("/api/auth/reset-password", {
+      email,
+      code,
+      newPassword,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Reset password error:", error);
     throw error;
   }
 };
