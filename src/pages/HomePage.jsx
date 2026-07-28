@@ -2,87 +2,27 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { Briefcase, Users, FileText, TrendingUp, Loader2 } from 'lucide-react';
-import { getAllJobs } from '../api/jobApi';
-import { getCandidatesByJob } from '../api/resumeApi';
+import { getDashboardStats } from '../api/dashboardApi';
+import { useAuth } from '../context/AuthContext';
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  // Fetch all jobs
-  const { data: jobsData, isLoading: jobsLoading } = useQuery('jobs', getAllJobs);
-  const jobs = jobsData?.jobs || [];
-
-  // Fetch all candidates (we'll combine across jobs)
-  // Note: This is simplified - in production you'd have a dedicated endpoint
-  const { data: candidatesData, isLoading: candidatesLoading } = useQuery(
-    'allCandidates',
-    async () => {
-      // Fetch candidates for each job and combine
-      const allCandidates = [];
-      for (const job of jobs) {
-        try {
-          const response = await getCandidatesByJob(job._id);
-          if (response.success) {
-            allCandidates.push(...response.candidates);
-          }
-        } catch (error) {
-          console.error(`Failed to fetch candidates for job ${job._id}:`, error);
-        }
-      }
-      return allCandidates;
-    },
+  // ✅ ONE SINGLE QUERY for everything!
+  const { data, isLoading, error } = useQuery(
+    'dashboardStats',
+    getDashboardStats,
     {
-      enabled: jobs.length > 0, // Only run when jobs are loaded
+      staleTime: 60000, // Cache for 1 minute
+      refetchOnWindowFocus: false,
     }
   );
 
-  const candidates = candidatesData || [];
-  const isLoading = jobsLoading || candidatesLoading;
-
-  // Calculate real stats
-  const totalJobs = jobs.length;
-  const totalCandidates = candidates.length;
-  const totalResumes = candidates.filter(c => c.resumeFileName).length;
-
-  // Calculate average match score (if available in future)
-  const avgMatchRate = candidates.length > 0
-    ? Math.round(candidates.reduce((sum, c) => sum + (c.matchResult?.overallScore || 0), 0) / candidates.length)
-    : 0;
-
-  // Find latest activity
-  const latestJob = jobs.length > 0 ? jobs[0] : null;
-  const latestCandidate = candidates.length > 0 ? candidates[0] : null;
-
-  const stats = [
-    { 
-      icon: Briefcase, 
-      label: 'Total Jobs', 
-      value: totalJobs, 
-      color: 'bg-blue-500',
-      subtext: totalJobs > 0 ? `${totalJobs} active job${totalJobs > 1 ? 's' : ''}` : 'No jobs yet'
-    },
-    { 
-      icon: Users, 
-      label: 'Candidates', 
-      value: totalCandidates, 
-      color: 'bg-green-500',
-      subtext: totalCandidates > 0 ? `Across ${totalJobs} job${totalJobs > 1 ? 's' : ''}` : 'No candidates yet'
-    },
-    { 
-      icon: FileText, 
-      label: 'Resumes', 
-      value: totalResumes, 
-      color: 'bg-purple-500',
-      subtext: totalResumes > 0 ? `${totalResumes} PDF${totalResumes > 1 ? 's' : ''} uploaded` : 'No resumes yet'
-    },
-    { 
-      icon: TrendingUp, 
-      label: 'Avg Match Rate', 
-      value: totalCandidates > 0 ? `${avgMatchRate}%` : '—', 
-      color: 'bg-orange-500',
-      subtext: totalCandidates > 0 ? `Based on ${totalCandidates} candidates` : 'No data yet'
-    },
-  ];
+  const dashboardData = data?.data;
+  const stats = dashboardData?.stats || {};
+  const recentJobs = dashboardData?.recentJobs || [];
+  const recentCandidates = dashboardData?.recentCandidates || [];
 
   // Loading state
   if (isLoading) {
@@ -96,16 +36,60 @@ const HomePage = () => {
     );
   }
 
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-600">
+        Failed to load dashboard. Please refresh the page.
+      </div>
+    );
+  }
+
+  // ✅ Stats array for display
+  const statCards = [
+    {
+      icon: Briefcase,
+      label: 'Total Jobs',
+      value: stats.totalJobs || 0,
+      color: 'bg-blue-500',
+      subtext: stats.totalJobs > 0 ? `${stats.totalJobs} active job${stats.totalJobs > 1 ? 's' : ''}` : 'No jobs yet'
+    },
+    {
+      icon: Users,
+      label: 'Candidates',
+      value: stats.totalCandidates || 0,
+      color: 'bg-green-500',
+      subtext: stats.totalCandidates > 0 ? `Across ${stats.totalJobs || 0} job${stats.totalJobs > 1 ? 's' : ''}` : 'No candidates yet'
+    },
+    {
+      icon: FileText,
+      label: 'Resumes',
+      value: stats.totalResumes || 0,
+      color: 'bg-purple-500',
+      subtext: stats.totalResumes > 0 ? `${stats.totalResumes} PDF${stats.totalResumes > 1 ? 's' : ''} uploaded` : 'No resumes yet'
+    },
+    {
+      icon: TrendingUp,
+      label: 'Avg Match Rate',
+      value: stats.avgMatchRate > 0 ? `${stats.avgMatchRate}%` : '—',
+      color: 'bg-orange-500',
+      subtext: stats.avgMatchRate > 0 ? `Based on ${stats.totalCandidates || 0} candidates` : 'No data yet'
+    },
+  ];
+
   return (
     <div>
       <div className="mb-8">
-       <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-<p className="text-gray-600 mt-1">Welcome back! Here's what's happening with your jobs.</p>
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-600 mt-1">
+          Welcome back, <span className="font-semibold text-gray-800">{user?.firstName || 'User'}!</span>{' '}
+          Here's what's happening with your jobs.
+        </p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, index) => (
+        {statCards.map((stat, index) => (
           <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4">
               <div className={`p-3 rounded-lg ${stat.color} bg-opacity-10`}>
@@ -127,7 +111,7 @@ const HomePage = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Recent Jobs</h3>
-            {totalJobs > 0 && (
+            {stats.totalJobs > 0 && (
               <button
                 onClick={() => navigate('/jobs')}
                 className="text-sm text-blue-600 hover:text-blue-700"
@@ -136,7 +120,7 @@ const HomePage = () => {
               </button>
             )}
           </div>
-          {totalJobs === 0 ? (
+          {recentJobs.length === 0 ? (
             <div className="text-center py-8">
               <Briefcase className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500">No jobs created yet</p>
@@ -149,8 +133,8 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="space-y-3">
-              {jobs.slice(0, 3).map((job) => (
-                <div key={job._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              {recentJobs.map((job) => (
+                <div key={job._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => navigate(`/job/${job._id}`)}>
                   <div>
                     <p className="font-medium text-gray-900">{job.jobTitle}</p>
                     <p className="text-xs text-gray-500">
@@ -170,16 +154,16 @@ const HomePage = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Recent Candidates</h3>
-            {totalCandidates > 0 && (
+            {stats.totalCandidates > 0 && (
               <button
-                onClick={() => navigate('/upload')}
+                onClick={() => navigate('/all-candidates')}
                 className="text-sm text-blue-600 hover:text-blue-700"
               >
                 View All →
               </button>
             )}
           </div>
-          {totalCandidates === 0 ? (
+          {recentCandidates.length === 0 ? (
             <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500">No candidates yet</p>
@@ -192,19 +176,30 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="space-y-3">
-              {candidates.slice(0, 3).map((candidate) => (
-                <div key={candidate._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              {recentCandidates.map((candidate) => (
+                <div key={candidate._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => navigate(`/candidate/${candidate._id}`)}>
                   <div>
-                    <p className="font-medium text-gray-900">
-                      {candidate.candidateName || 'Unnamed Candidate'}
-                    </p>
+                    <p className="font-medium text-gray-900">{candidate.candidateName}</p>
                     <p className="text-xs text-gray-500">
-                      {candidate.email || 'No email'} • {candidate.resumeFileName || 'No resume'}
+                      {candidate.email || 'No email'}
                     </p>
                   </div>
-                  <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
-                    {candidate.status || 'uploaded'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {candidate.matchScore && (
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        candidate.matchScore >= 80 ? 'bg-green-100 text-green-700' :
+                        candidate.matchScore >= 60 ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {candidate.matchScore}%
+                      </span>
+                    )}
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      candidate.status === 'parsed' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      {candidate.status || 'uploaded'}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -228,7 +223,7 @@ const HomePage = () => {
           <h3 className="text-lg font-semibold">Upload Resumes</h3>
           <p className="text-purple-100 mt-1">Upload and let AI parse resumes automatically</p>
           <button
-            onClick={() => navigate('/upload')} // ✅ Changed to navigate
+            onClick={() => navigate('/upload')}
             className="mt-4 px-4 py-2 bg-white text-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
           >
             Upload Resumes →
