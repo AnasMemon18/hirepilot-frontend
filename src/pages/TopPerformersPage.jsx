@@ -139,28 +139,20 @@ const TopPerformersPage = () => {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {topPerformers.map((candidate, index) => {
-              const rank = index + 1;
-              return (
-                <div key={candidate._id} className="relative">
-                  <CandidateCard
-                    candidate={candidate}
-                    rank={rank}
-                    onClick={() => navigate(`/candidate/${candidate._id}`)}
-                  />
-                  {/* Job Title Badge */}
-                  <div className="absolute top-2 right-2 bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
-                    {candidate.jobTitle || 'Unknown Job'}
-                  </div>
-                  {/* Score Badge */}
-                  <div className="absolute -top-1 -right-1 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
-                    ★ {candidate.matchResult?.overallScore}%
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+  {topPerformers.map((candidate, index) => {
+    const rank = index + 1;
+
+    return (
+      <CandidateCard
+        key={candidate._id}
+        candidate={candidate}
+        rank={rank}
+        onClick={() => navigate(`/candidate/${candidate._id}`)}
+      />
+    );
+  })}
+</div>
         </>
       )}
     </div>

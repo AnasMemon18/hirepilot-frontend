@@ -20,6 +20,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import ProfilePage from './pages/ProfilePage';
 
 const queryClient = new QueryClient();
 
@@ -84,6 +85,14 @@ const AppContent = () => {
 
       {/* ✅ Protected Routes (All Authenticated Users) */}
       <Route element={<ProtectedRoute />}>
+      <Route
+  path="/profile"
+  element={
+    <AppLayout>
+      <ProfilePage />
+    </AppLayout>
+  }
+/>
         <Route
           path="/"
           element={
