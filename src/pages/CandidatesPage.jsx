@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { getCandidatesByJob } from '../api/resumeApi';
@@ -57,11 +57,14 @@ const canMatch = isHR || isAdmin;
   const job = jobData?.job;
   const candidates = candidatesData?.candidates || [];
 
-  const sortedCandidates = [...candidates].sort((a, b) => {
-  const scoreA = a.matchResult?.overallScore || -1;
-  const scoreB = b.matchResult?.overallScore || -1;
-  return scoreB - scoreA;
-});
+ const sortedCandidates = useMemo(() => {
+  return [...candidates].sort((a, b) => {
+    const scoreA = a.matchResult?.overallScore || -1;
+    const scoreB = b.matchResult?.overallScore || -1;
+    return scoreB - scoreA;
+  });
+}, [candidates]);
+
   // Count candidates with match scores
   const matchedCandidates = candidates.filter(c => c.matchResult);
   const matchedCount = matchedCandidates.length;

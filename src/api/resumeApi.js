@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://hirepilot-backend-f381.onrender.com" || "http://localhost:5000"; 
+const API_BASE_URL = "http://localhost:5000"; 
 
 // ✅ Create axios instance
 const api = axios.create({
@@ -82,6 +82,31 @@ export const matchAllCandidates = async (jobId) => {
     return response.data;
   } catch (error) {
     console.error("Error matching all candidates:", error);
+    throw error;
+  }
+};
+
+// ✅ OPTIMIZED: Get all candidates across all jobs in ONE query
+
+export const getAllCandidatesOptimized = async () => {
+  try {
+    const response = await api.get("/candidates/all");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching all candidates:", error);
+    throw error;
+  }
+};
+
+
+ //✅ OPTIMIZED: Get top performers (60%+ score)
+ 
+export const getTopPerformersOptimized = async (minScore = 60) => {
+  try {
+    const response = await api.get(`/candidates/top-performers?minScore=${minScore}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching top performers:", error);
     throw error;
   }
 };

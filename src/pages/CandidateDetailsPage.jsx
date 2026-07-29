@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { getCandidateById, deleteCandidate } from '../api/resumeApi';
 import { toast } from 'react-hot-toast';
-import { Loader2, ArrowLeft, Download, User, Mail, Phone, Briefcase, GraduationCap, Award, Code, Languages, Calendar, Building, FileText, Trash2 } from 'lucide-react';
+import { Loader2, ArrowLeft, Download, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import CandidateDetails from '../components/candidates/CandidateDetails';
 
@@ -11,19 +11,24 @@ const CandidateDetailsPage = () => {
   const { candidateId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { isHR, isAdmin } = useAuth();
-  const canMatch = isHR || isAdmin;
+  const { isAdmin } = useAuth();
   const canDelete = isAdmin;
 
-  const { data, isLoading, error, refetch } = useQuery(
+  // ✅ Optimized: Uses .select("-resumeText") to exclude heavy field
+  const { data, isLoading, error } = useQuery(
     ['candidate', candidateId],
     () => getCandidateById(candidateId),
-    { enabled: !!candidateId }
+    {
+      staleTime: 2 * 60 * 1000,
+      cacheTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    }
   );
 
   const candidate = data?.candidate;
 
-  // ✅ Delete Candidate Mutation (Admin only)
+  // Delete Mutation (Admin only)
   const deleteMutation = useMutation(deleteCandidate, {
     onSuccess: () => {
       toast.success('✅ Candidate deleted successfully!');
@@ -41,7 +46,7 @@ const CandidateDetailsPage = () => {
     }
   };
 
-  // View Resume - Open PDF in new tab
+  // View Resume
   const handleViewResume = () => {
     if (candidate?.resumePath) {
       const fullPath = candidate.resumePath;
@@ -74,7 +79,7 @@ const CandidateDetailsPage = () => {
 
   return (
     <div className="max-w-full overflow-x-hidden">
-      {/* Header - Responsive */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <button
@@ -93,7 +98,7 @@ const CandidateDetailsPage = () => {
           </div>
         </div>
         
-        {/* Actions - Responsive wrap */}
+        {/* Actions */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <span className={`px-2 py-1 text-xs sm:text-sm rounded-full whitespace-nowrap ${
             candidate.status === 'parsed' 
@@ -105,7 +110,6 @@ const CandidateDetailsPage = () => {
             {candidate.status || 'uploaded'}
           </span>
           
-          {/* ✅ View Resume Button */}
           <button
             onClick={handleViewResume}
             className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-600 text-white text-sm sm:text-base rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
@@ -115,7 +119,6 @@ const CandidateDetailsPage = () => {
             <span className="xs:hidden">Resume</span>
           </button>
 
-          {/* ✅ Delete Button - Admin only */}
           {canDelete && (
             <button
               onClick={handleDelete}
@@ -135,7 +138,6 @@ const CandidateDetailsPage = () => {
         </div>
       </div>
 
-      {/* Candidate Details Component - Responsive */}
       <div className="overflow-x-hidden">
         <CandidateDetails candidate={candidate} />
       </div>

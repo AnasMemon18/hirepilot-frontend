@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { User, Mail, Briefcase, GraduationCap, FileText, TrendingUp, Crown, Trophy, Award } from 'lucide-react';
 
-const CandidateCard = React.memo(({ candidate, onClick, rank }) => {
+const CandidateCard = memo(({ candidate, onClick, rank }) => {
   const topSkills = candidate.skills?.slice(0, 3) || [];
   const hasMoreSkills = (candidate.skills?.length || 0) > 3;
 
@@ -75,7 +75,7 @@ const CandidateCard = React.memo(({ candidate, onClick, rank }) => {
       onClick={onClick}
       className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md hover:border-blue-300 transition-all cursor-pointer relative group"
     >
-      {/* ✅ Rank Badge - Top Left (Responsive) */}
+      {/* Rank Badge - Top Left */}
       {rankStyle && (
         <div className={`absolute -top-2 -left-2 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold ${rankStyle.bg} ${rankStyle.text} shadow-md z-10`}>
           {rankStyle.icon ? (
@@ -89,7 +89,7 @@ const CandidateCard = React.memo(({ candidate, onClick, rank }) => {
         </div>
       )}
 
-      {/* ✅ Match Score Badge - Top Right (Responsive) */}
+      {/* Match Score Badge - Top Right */}
       {matchScore !== null && (
         <div className={`absolute -top-2 -right-2 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full ${getScoreBg(matchScore)} flex items-center gap-0.5 sm:gap-1 shadow-md z-10`}>
           <TrendingUp className={`w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 ${getScoreColor(matchScore)}`} />
@@ -99,8 +99,10 @@ const CandidateCard = React.memo(({ candidate, onClick, rank }) => {
         </div>
       )}
 
+      {/* ✅ REMOVED: Job Title Badge from Top Right */}
+
       {/* Header - Name & Status */}
-      <div className="flex items-start justify-between mb-3 pt-4">
+      <div className="flex items-start justify-between mb-3 pt-2">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
             <User className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-blue-600" />
@@ -168,7 +170,7 @@ const CandidateCard = React.memo(({ candidate, onClick, rank }) => {
         </div>
       </div>
 
-      {/* Job Title Badge - Bottom */}
+      {/* ✅ Job Title Badge - Bottom (Only ONE place) */}
       {candidate.jobTitle && (
         <div className="mt-2 pt-2 border-t border-gray-50">
           <span className="text-[9px] sm:text-xs text-gray-400 truncate block">
