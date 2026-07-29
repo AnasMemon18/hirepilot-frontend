@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useMutation } from 'react-query';
 import { toast } from 'react-hot-toast';
 import { 
@@ -31,10 +31,10 @@ const CandidateDetails = React.memo(({ candidate }) => {
     },
   });
 
-  const handleMatch = () => {
+  const handleMatch = useCallback(() => {
     setIsMatching(true);
     matchMutation.mutate(candidate._id);
-  };
+  }, [candidate?._id, matchMutation]);
 
   // Helper to check if field has data
   const hasData = (field) => {

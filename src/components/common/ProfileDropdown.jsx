@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { User, LogOut, Settings, ChevronDown, UserCircle } from 'lucide-react';
@@ -20,16 +20,16 @@ const ProfileDropdown = React.memo(() => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setIsOpen(false);
     logout();
     navigate('/login');
-  };
+  }, [logout, navigate]);
 
-  const handleProfile = () => {
+  const handleProfile = useCallback(() => {
     setIsOpen(false);
     navigate('/profile');
-  };
+  }, [navigate]);
 
   // Get initials
   const getInitials = () => {

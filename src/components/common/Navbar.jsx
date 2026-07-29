@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu, X, Briefcase } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
@@ -9,10 +9,10 @@ const Navbar = React.memo(({ sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout();
-    navigate("/login");
-  };
+    navigate('/login');
+  }, [logout, navigate]);
 
   return (
     <nav className="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg fixed w-full top-0 z-50">

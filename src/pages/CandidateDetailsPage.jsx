@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { getCandidateById, deleteCandidate } from '../api/resumeApi';
@@ -40,14 +40,14 @@ const CandidateDetailsPage = () => {
     },
   });
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     if (window.confirm(`Are you sure you want to delete this candidate?`)) {
       deleteMutation.mutate(candidateId);
     }
-  };
+  }, [candidateId, deleteMutation]);
 
   // View Resume
-  const handleViewResume = () => {
+  const handleViewResume = useCallback(() => {
     if (candidate?.resumePath) {
       const fullPath = candidate.resumePath;
       const fileName = fullPath.split(/[\\/]/).pop();
@@ -56,7 +56,7 @@ const CandidateDetailsPage = () => {
     } else {
       alert('No resume file found');
     }
-  };
+  }, [candidate?.resumePath]);
 
   if (isLoading) {
     return (

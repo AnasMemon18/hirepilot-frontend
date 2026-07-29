@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback, useMemo} from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { toast } from "react-hot-toast";
@@ -39,7 +39,7 @@ const JobList = React.memo(() => {
     },
   });
 
-  const handleDelete = (e, jobId, jobTitle) => {
+  const handleDelete = useCallback((e, jobId, jobTitle) => {
     e.stopPropagation();
     if (
       window.confirm(
@@ -48,24 +48,24 @@ const JobList = React.memo(() => {
     ) {
       deleteMutation.mutate(jobId);
     }
-  };
+  },[deleteMutation]);
 
-  const handleEdit = (e, jobId) => {
+  const handleEdit = useCallback((e, jobId) => {
     e.stopPropagation();
     navigate(`/edit-job/${jobId}`);
-  };
+  }, [navigate]);
 
   // Handle View Details
-  const handleViewDetails = (e, jobId) => {
+   const handleViewDetails = useCallback((e, jobId) => {
     e.stopPropagation();
     navigate(`/job/${jobId}`);
-  };
+  }, [navigate]);
 
   // Handle View Candidates
-  const handleViewCandidates = (e, jobId) => {
+  const handleViewCandidates = useCallback((e, jobId) => {
     e.stopPropagation();
     navigate(`/candidates/${jobId}`);
-  };
+  }, [navigate]);
 
   if (isLoading) {
     return (
