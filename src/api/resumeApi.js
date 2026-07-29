@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL =  "https://hirepilot-frontend-psi.vercel.app" || "http://localhost:5000"; 
+const API_BASE_URL =  "https://hirepilot-backend-f381.onrender.com" || "http://localhost:5000"; 
 
 // ✅ Create axios instance
 const api = axios.create({
