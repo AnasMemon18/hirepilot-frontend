@@ -10,15 +10,15 @@ const TopPerformersPage = () => {
 
   // ✅ OPTIMIZED: Single query for top performers
   const { data, isLoading, error } = useQuery(
-    'topPerformersOptimized',
-    () => getTopPerformersOptimized(60), // 60%+ threshold
-    {
-      staleTime: 2 * 60 * 1000, // 2 minutes
-      cacheTime: 5 * 60 * 1000, // 5 minutes
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-    }
-  );
+  'topPerformersOptimized',
+  () => getTopPerformersOptimized(60),
+  {
+    staleTime: 5 * 60 * 1000,   // 5 minutes
+    cacheTime: 10 * 60 * 1000,  // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  }
+);
 
   const candidates = data?.candidates || [];
 

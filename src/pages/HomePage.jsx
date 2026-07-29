@@ -11,13 +11,15 @@ const HomePage = () => {
 
   // ✅ ONE SINGLE QUERY for everything!
   const { data, isLoading, error } = useQuery(
-    'dashboardStats',
-    getDashboardStats,
-    {
-      staleTime: 60000, // Cache for 1 minute
-      refetchOnWindowFocus: false,
-    }
-  );
+  'dashboardStats',
+  getDashboardStats,
+  {
+    staleTime: 5 * 60 * 1000,   // 5 minutes
+    cacheTime: 10 * 60 * 1000,  // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  }
+);
 
   const dashboardData = data?.data;
   const stats = dashboardData?.stats || {};

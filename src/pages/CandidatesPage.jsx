@@ -30,10 +30,16 @@ const canMatch = isHR || isAdmin;
 
   // Fetch candidates for this job
   const { data: candidatesData, isLoading: candidatesLoading, refetch } = useQuery(
-    ['candidates', jobId],
-    () => getCandidatesByJob(jobId),
-    { enabled: !!jobId }
-  );
+  ['candidates', jobId],
+  () => getCandidatesByJob(jobId),
+  {
+    enabled: !!jobId,
+    staleTime: 5 * 60 * 1000,   // 5 minutes
+    cacheTime: 10 * 60 * 1000,  // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  }
+);
 
   // Mutation for matching all candidates
   const matchAllMutation = useMutation(matchAllCandidates, {

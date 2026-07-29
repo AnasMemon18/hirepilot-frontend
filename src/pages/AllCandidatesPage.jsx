@@ -10,15 +10,15 @@ const AllCandidatesPage = () => {
 
   // ✅ OPTIMIZED: Single query for all candidates
   const { data, isLoading, error } = useQuery(
-    'allCandidatesOptimized',
-    getAllCandidatesOptimized,
-    {
-      staleTime: 2 * 60 * 1000, // 2 minutes
-      cacheTime: 5 * 60 * 1000, // 5 minutes
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-    }
-  );
+  'allCandidatesOptimized',
+  getAllCandidatesOptimized,
+  {
+    staleTime: 5 * 60 * 1000,   // 5 minutes
+    cacheTime: 10 * 60 * 1000,  // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  }
+);
 
   const candidates = data?.candidates || [];
 

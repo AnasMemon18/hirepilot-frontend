@@ -13,15 +13,15 @@ const JobsPage = () => {
 
   // ✅ Optimized: Uses .select() to fetch only needed fields
   const { data, isLoading, error } = useQuery(
-    'jobs',
-    getAllJobs,
-    {
-      staleTime: 2 * 60 * 1000, // 2 minutes
-      cacheTime: 5 * 60 * 1000, // 5 minutes
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-    }
-  );
+  'jobs',
+  getAllJobs,
+  {
+    staleTime: 5 * 60 * 1000,   // 5 minutes
+    cacheTime: 10 * 60 * 1000,  // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  }
+);
 
   const jobs = data?.jobs || [];
 

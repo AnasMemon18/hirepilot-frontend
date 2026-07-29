@@ -16,15 +16,15 @@ const CandidateDetailsPage = () => {
 
   // ✅ Optimized: Uses .select("-resumeText") to exclude heavy field
   const { data, isLoading, error } = useQuery(
-    ['candidate', candidateId],
-    () => getCandidateById(candidateId),
-    {
-      staleTime: 2 * 60 * 1000,
-      cacheTime: 5 * 60 * 1000,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-    }
-  );
+  ['candidate', candidateId],
+  () => getCandidateById(candidateId),
+  {
+    staleTime: 5 * 60 * 1000,   // 5 minutes
+    cacheTime: 10 * 60 * 1000,  // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  }
+);
 
   const candidate = data?.candidate;
 
